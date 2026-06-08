@@ -6,373 +6,90 @@
 <title>Stream Mixer</title>
 <style>
   :root {
-    --bg: #0e0e10;
-    --surface: #18181b;
-    --surface2: #1f1f23;
-    --border: rgba(255,255,255,0.08);
-    --border2: rgba(255,255,255,0.14);
-    --text: #efeff1;
-    --text2: #adadb8;
-    --text3: #6b6b7e;
-    --purple: #9147ff;
-    --purple-dim: #5c2fa0;
-    --green: #00b26b;
-    --red: #e53e3e;
-    --radius: 8px;
-    --radius-lg: 12px;
+    --bg: #0e0e10; --surface: #18181b; --surface2: #1f1f23;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.14);
+    --text: #efeff1; --text2: #adadb8; --text3: #6b6b7e;
+    --purple: #9147ff; --purple-dim: #5c2fa0; --green: #00b26b; --red: #e53e3e;
+    --radius: 8px; --radius-lg: 12px;
   }
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 14px;
-  }
-
-  /* ── TOP BAR ── */
-  .topbar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 600;
-    font-size: 15px;
-    color: var(--purple);
-    flex-shrink: 0;
-  }
-
+  .topbar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; flex-wrap: wrap; }
+  .logo { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; color: var(--purple); flex-shrink: 0; }
   .logo svg { width: 20px; height: 20px; fill: var(--purple); }
-
-  .add-form {
-    display: flex;
-    gap: 8px;
-    flex: 1;
-    max-width: 420px;
-  }
-
-  .add-form input {
-    flex: 1;
-    height: 34px;
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: var(--radius);
-    color: var(--text);
-    padding: 0 12px;
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-
+  .add-form { display: flex; gap: 8px; flex: 1; max-width: 420px; min-width: 240px; }
+  .add-form input { flex: 1; height: 34px; background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius); color: var(--text); padding: 0 12px; font-size: 13px; outline: none; transition: border-color 0.15s; }
   .add-form input:focus { border-color: var(--purple); }
   .add-form input::placeholder { color: var(--text3); }
 
-  .btn {
-    height: 34px;
-    padding: 0 14px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border2);
-    background: var(--surface2);
-    color: var(--text);
-    font-size: 13px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-    transition: background 0.12s, border-color 0.12s;
-    flex-shrink: 0;
-  }
-
+  .btn { height: 34px; padding: 0 14px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--surface2); color: var(--text); font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: background 0.12s, border-color 0.12s; flex-shrink: 0; }
   .btn:hover { background: var(--border2); }
   .btn.primary { background: var(--purple-dim); border-color: var(--purple); color: #fff; }
   .btn.primary:hover { background: var(--purple); }
   .btn.danger:hover { background: var(--red); border-color: var(--red); }
-  .btn.icon-only { width: 34px; padding: 0; justify-content: center; }
+  .btn.sm { height: 30px; font-size: 12px; padding: 0 10px; }
 
-  .topbar-right {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .shortcuts-hint {
-    font-size: 12px;
-    color: var(--text3);
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    transition: background 0.12s;
-  }
-
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .shortcuts-hint { font-size: 12px; color: var(--text3); cursor: pointer; padding: 4px 8px; border-radius: var(--radius); border: 1px solid var(--border); transition: background 0.12s; }
   .shortcuts-hint:hover { background: var(--surface2); color: var(--text2); }
 
-  /* ── MASTER BAR ── */
-  .master-bar {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 10px 16px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .master-bar label { font-size: 12px; color: var(--text3); white-space: nowrap; }
-
-  .slider-wrap {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex: 1;
-    max-width: 260px;
-  }
-
+  .master-bar { display: flex; align-items: center; gap: 16px; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .master-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 280px; }
+  .master-link-toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); cursor: pointer; padding: 4px 10px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--surface2); transition: all 0.12s; }
+  .master-link-toggle:hover { border-color: var(--purple); }
+  .master-link-toggle.active { color: var(--purple); border-color: var(--purple-dim); background: rgba(145,71,255,0.1); }
+  .slider-wrap { display: flex; align-items: center; gap: 10px; flex: 1; max-width: 280px; }
   .slider-wrap input[type=range] { flex: 1; accent-color: var(--purple); cursor: pointer; }
+  .slider-val { font-size: 12px; font-weight: 600; min-width: 28px; text-align: right; color: var(--text2); }
+  .master-actions { display: flex; gap: 8px; }
 
-  .slider-val {
-    font-size: 12px;
-    font-weight: 600;
-    min-width: 28px;
-    text-align: right;
-    color: var(--text2);
-  }
+  .layouts-bar { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--bg); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .layouts-bar .lbl { font-size: 12px; color: var(--text3); }
+  .layout-chip { display: flex; align-items: center; gap: 4px; font-size: 12px; padding: 4px 8px 4px 10px; border-radius: 20px; border: 1px solid var(--border2); background: var(--surface2); cursor: pointer; color: var(--text2); transition: all 0.12s; }
+  .layout-chip:hover { border-color: var(--purple); color: var(--text); }
+  .layout-chip .x { color: var(--text3); padding: 0 2px; border-radius: 50%; }
+  .layout-chip .x:hover { color: var(--red); }
 
-  .master-actions { display: flex; gap: 8px; margin-left: auto; }
-
-  /* ── SHORTCUTS PANEL ── */
-  .shortcuts-panel {
-    display: none;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 12px 16px;
-  }
-
+  .shortcuts-panel { display: none; background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 16px; }
   .shortcuts-panel.open { display: block; }
+  .sc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px 24px; }
+  .sc-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text2); padding: 3px 0; }
+  .sc-key { font-family: monospace; background: var(--surface2); border: 1px solid var(--border2); border-radius: 4px; padding: 1px 7px; font-size: 11px; color: var(--text3); }
 
-  .sc-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 6px 24px;
-  }
-
-  .sc-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 12px;
-    color: var(--text2);
-    padding: 3px 0;
-  }
-
-  .sc-key {
-    font-family: monospace;
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: 4px;
-    padding: 1px 7px;
-    font-size: 11px;
-    color: var(--text3);
-  }
-
-  /* ── GRID ── */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 12px;
-    padding: 14px 16px;
-  }
-
-  .stream-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: opacity 0.2s;
-  }
-
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; padding: 14px 16px; }
+  .stream-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; display: flex; flex-direction: column; transition: opacity 0.2s; }
   .stream-card.muted { opacity: 0.6; }
-
-  .player-wrap {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16/9;
-    background: #000;
-    overflow: hidden;
-  }
-
-  .player-wrap iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
-  }
-
-  .player-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    color: var(--text3);
-    font-size: 13px;
-    background: #000;
-  }
-
+  .player-wrap { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden; }
+  .player-wrap iframe, .player-wrap > div[id^="tw-"] { width: 100% !important; height: 100% !important; border: none; display: block; }
+  .player-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--text3); font-size: 13px; background: #000; }
   .video-hidden .player-wrap { display: none; }
 
   .card-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+  .card-header { display: flex; align-items: center; gap: 8px; }
+  .chain-btn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 2px 4px; border-radius: 4px; line-height: 1; transition: background 0.12s; flex-shrink: 0; opacity: 0.85; }
+  .chain-btn:hover { background: var(--surface2); opacity: 1; }
+  .chain-btn.unlinked { opacity: 0.45; }
+  .channel-label { font-weight: 600; font-size: 14px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .live-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.04em; padding: 2px 7px; border-radius: 4px; background: var(--red); color: #fff; flex-shrink: 0; }
+  .live-badge.audio-only { background: var(--purple-dim); color: #dcc8ff; }
+  .live-badge.muted-badge { background: var(--surface2); color: var(--text3); }
 
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+  .ctrl-row { display: flex; align-items: center; gap: 8px; }
+  .ctrl-label { font-size: 11px; color: var(--text3); min-width: 48px; flex-shrink: 0; }
+  .ctrl-row input[type=range] { flex: 1; accent-color: var(--purple); cursor: pointer; }
+  .ctrl-val { font-size: 11px; font-weight: 600; min-width: 40px; text-align: right; color: var(--text2); }
+  .card-actions { display: flex; gap: 6px; padding-top: 4px; }
+  .card-actions .btn { flex: 1; justify-content: center; height: 30px; font-size: 12px; padding: 0 6px; }
 
-  .link-checkbox {
-    width: 15px;
-    height: 15px;
-    accent-color: var(--purple);
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-
-  .channel-label {
-    font-weight: 600;
-    font-size: 14px;
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .live-badge {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    padding: 2px 7px;
-    border-radius: 4px;
-    background: var(--red);
-    color: #fff;
-    flex-shrink: 0;
-  }
-
-  .live-badge.audio-only {
-    background: var(--purple-dim);
-    color: #dcc8ff;
-  }
-
-  .live-badge.muted-badge {
-    background: var(--surface2);
-    color: var(--text3);
-  }
-
-  /* Controls */
-  .ctrl-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .ctrl-icon {
-    font-size: 13px;
-    color: var(--text3);
-    width: 16px;
-    text-align: center;
-    flex-shrink: 0;
-  }
-
-  .ctrl-label {
-    font-size: 11px;
-    color: var(--text3);
-    min-width: 48px;
-    flex-shrink: 0;
-  }
-
-  .ctrl-row input[type=range] {
-    flex: 1;
-    accent-color: var(--purple);
-    cursor: pointer;
-  }
-
-  .ctrl-row input[type=range]:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
-  .ctrl-val {
-    font-size: 11px;
-    font-weight: 600;
-    min-width: 36px;
-    text-align: right;
-    color: var(--text2);
-  }
-
-  .card-actions {
-    display: flex;
-    gap: 6px;
-    padding-top: 4px;
-  }
-
-  .card-actions .btn {
-    flex: 1;
-    justify-content: center;
-    height: 30px;
-    font-size: 12px;
-  }
-
-  /* ── EMPTY STATE ── */
-  .empty-state {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 4rem 2rem;
-    color: var(--text3);
-    border: 1px dashed var(--border2);
-    border-radius: var(--radius-lg);
-    margin: 14px 16px;
-  }
-
+  .empty-state { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 4rem 2rem; color: var(--text3); border: 1px dashed var(--border2); border-radius: var(--radius-lg); margin: 14px 16px; }
   .empty-state svg { width: 40px; height: 40px; fill: var(--text3); opacity: 0.4; }
   .empty-state p { font-size: 15px; }
   .empty-state small { font-size: 13px; color: var(--text3); }
 
-  /* ── NOTICE ── */
-  .notice {
-    margin: 0 16px 4px;
-    padding: 10px 14px;
-    background: rgba(145, 71, 255, 0.08);
-    border: 1px solid rgba(145, 71, 255, 0.2);
-    border-radius: var(--radius);
-    font-size: 12px;
-    color: var(--text2);
-    line-height: 1.6;
-  }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--surface2); border: 1px solid var(--border2); color: var(--text); padding: 10px 18px; border-radius: var(--radius); font-size: 13px; z-index: 200; opacity: 0; transition: opacity 0.2s, transform 0.2s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
 
-  .notice a { color: var(--purple); }
-
-  /* scrollbar */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
@@ -380,27 +97,24 @@
 </head>
 <body>
 
-<!-- TOP BAR -->
 <div class="topbar">
   <div class="logo">
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+    <svg viewBox="0 0 24 24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
     Stream Mixer
   </div>
-
   <div class="add-form">
     <input type="text" id="channelInput" placeholder="Channel name (e.g. xqc)" autocomplete="off" />
     <button class="btn primary" onclick="addStream()">+ Add</button>
   </div>
-
   <div class="topbar-right">
+    <button class="btn sm" onclick="shareLayout()">🔗 Share</button>
     <span class="shortcuts-hint" onclick="toggleShortcuts()">⌨ Shortcuts</span>
   </div>
 </div>
 
-<!-- SHORTCUTS PANEL -->
 <div class="shortcuts-panel" id="shortcutsPanel">
   <div class="sc-grid">
-    <div class="sc-row"><span>Add stream (focus input first)</span><kbd class="sc-key">Enter</kbd></div>
+    <div class="sc-row"><span>Add stream (input focused)</span><kbd class="sc-key">Enter</kbd></div>
     <div class="sc-row"><span>Focus channel input</span><kbd class="sc-key">/</kbd></div>
     <div class="sc-row"><span>Mute / unmute all</span><kbd class="sc-key">M</kbd></div>
     <div class="sc-row"><span>Linked volume up</span><kbd class="sc-key">↑</kbd></div>
@@ -409,60 +123,132 @@
   </div>
 </div>
 
-<!-- MASTER BAR -->
 <div class="master-bar" id="masterBar" style="display:none;">
-  <label>Linked volume</label>
-  <div class="slider-wrap">
-    <input type="range" min="0" max="100" step="1" value="80" id="linkedSlider" oninput="onLinkedChange(+this.value)" />
-    <span class="slider-val" id="linkedVal">80</span>
+  <div class="master-left">
+    <div class="master-link-toggle active" id="masterLinkToggle" onclick="toggleMasterLink()">
+      <span id="masterLinkIcon">🔗</span><span id="masterLinkText">All linked</span>
+    </div>
+    <div class="slider-wrap">
+      <input type="range" min="0" max="100" step="1" value="80" id="linkedSlider" oninput="onLinkedChange(+this.value)" />
+      <span class="slider-val" id="linkedVal">80</span>
+    </div>
   </div>
   <div class="master-actions">
-    <button class="btn" onclick="muteAll()" title="Toggle mute all (M)">⊘ Mute all</button>
-    <button class="btn" onclick="toggleAllVideo()" title="Toggle all video (V)">⬜ Video off</button>
+    <button class="btn" onclick="muteAll()">⊘ Mute all</button>
+    <button class="btn" onclick="toggleAllVideo()">⬜ Video off</button>
+    <button class="btn" onclick="saveLayout()">💾 Save layout</button>
   </div>
 </div>
 
-<!-- NOTICE -->
-<div class="notice" id="embedNotice" style="display:none;">
-  ⚠ Twitch requires a registered domain for embeds. Players will show a placeholder until hosted on a real URL.
-  Host for free on <a href="https://pages.github.com" target="_blank">GitHub Pages</a> to activate live streams.
+<div class="layouts-bar" id="layoutsBar" style="display:none;">
+  <span class="lbl">Saved:</span>
+  <div id="layoutChips" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
 </div>
 
-<!-- STREAM GRID -->
 <div id="streamGrid"></div>
+<div class="toast" id="toast"></div>
 
+<script src="https://player.twitch.tv/js/embed/v1.js"></script>
 <script>
 const streams = [];
 let nextId = 1;
+let masterAllLinked = true;
 const PARENT = location.hostname || 'localhost';
 const IS_LOCAL = PARENT === 'localhost' || PARENT === '' || PARENT === '127.0.0.1';
+const players = {}; // id -> Twitch.Player instance
 
-function toggleShortcuts() {
-  document.getElementById('shortcutsPanel').classList.toggle('open');
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
+function toggleShortcuts() { document.getElementById('shortcutsPanel').classList.toggle('open'); }
+
+/* ---------- persistence ---------- */
 function save() {
   try {
     localStorage.setItem('mixer_streams', JSON.stringify(streams.map(s => ({
-      channel: s.channel,
-      volume: s.volume,
-      offset: s.offset,
-      muted: s.muted,
-      linked: s.linked,
-      videoHidden: s.videoHidden
+      channel: s.channel, volume: s.volume, offset: s.offset,
+      muted: s.muted, linked: s.linked, videoHidden: s.videoHidden
     }))));
   } catch(e) {}
 }
-
-function load() {
+function loadFromStorage() {
   try {
     const data = JSON.parse(localStorage.getItem('mixer_streams') || '[]');
-    data.forEach(d => {
-      streams.push({ id: nextId++, ...d });
-    });
+    data.forEach(d => streams.push({ id: nextId++, ...d }));
   } catch(e) {}
 }
+function getLayouts() {
+  try { return JSON.parse(localStorage.getItem('mixer_layouts') || '{}'); } catch(e) { return {}; }
+}
+function setLayouts(obj) {
+  try { localStorage.setItem('mixer_layouts', JSON.stringify(obj)); } catch(e) {}
+}
 
+/* ---------- URL sharing ---------- */
+function loadFromURL() {
+  const params = new URLSearchParams(location.search);
+  const list = params.get('streams');
+  if (!list) return false;
+  list.split(',').map(c => c.trim().toLowerCase().replace(/[^a-z0-9_]/g,'')).filter(Boolean)
+    .forEach(channel => {
+      if (!streams.find(s => s.channel === channel))
+        streams.push({ id: nextId++, channel, volume: 80, offset: 0, muted: false, linked: true, videoHidden: false });
+    });
+  return streams.length > 0;
+}
+function shareLayout() {
+  if (streams.length === 0) { toast('Add streams first'); return; }
+  const list = streams.map(s => s.channel).join(',');
+  const url = location.origin + location.pathname + '?streams=' + encodeURIComponent(list);
+  navigator.clipboard.writeText(url).then(() => toast('Share link copied to clipboard'))
+    .catch(() => { prompt('Copy this link:', url); });
+}
+
+/* ---------- saved layouts (named) ---------- */
+function saveLayout() {
+  if (streams.length === 0) { toast('Add streams first'); return; }
+  const name = prompt('Name this layout:');
+  if (!name) return;
+  const layouts = getLayouts();
+  layouts[name.trim()] = streams.map(s => s.channel);
+  setLayouts(layouts);
+  renderLayouts();
+  toast('Layout "' + name.trim() + '" saved');
+}
+function loadLayout(name) {
+  const layouts = getLayouts();
+  const list = layouts[name];
+  if (!list) return;
+  streams.length = 0;
+  Object.keys(players).forEach(k => delete players[k]);
+  list.forEach(channel => streams.push({ id: nextId++, channel, volume: 80, offset: 0, muted: false, linked: true, videoHidden: false }));
+  save(); render(); toast('Loaded "' + name + '"');
+}
+function deleteLayout(name, ev) {
+  ev.stopPropagation();
+  const layouts = getLayouts();
+  delete layouts[name];
+  setLayouts(layouts);
+  renderLayouts();
+}
+function renderLayouts() {
+  const layouts = getLayouts();
+  const names = Object.keys(layouts);
+  const bar = document.getElementById('layoutsBar');
+  const chips = document.getElementById('layoutChips');
+  if (names.length === 0) { bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+  chips.innerHTML = names.map(n =>
+    `<span class="layout-chip" onclick="loadLayout('${n.replace(/'/g,"\\'")}')">${n}<span class="x" onclick="deleteLayout('${n.replace(/'/g,"\\'")}', event)">✕</span></span>`
+  ).join('');
+}
+
+/* ---------- stream CRUD ---------- */
 function addStream(channelName) {
   const input = document.getElementById('channelInput');
   const name = (channelName || input.value).trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
@@ -470,23 +256,57 @@ function addStream(channelName) {
   if (streams.find(s => s.channel === name)) { if (input) input.value = ''; return; }
   streams.push({ id: nextId++, channel: name, volume: 80, offset: 0, muted: false, linked: true, videoHidden: false });
   if (input) input.value = '';
-  save();
-  render();
+  save(); render();
 }
-
 function removeStream(id) {
   const i = streams.findIndex(x => x.id === id);
   if (i > -1) streams.splice(i, 1);
-  save();
-  render();
+  delete players[id];
+  save(); render();
+}
+
+/* ---------- live player control ---------- */
+function applyVolume(s) {
+  const p = players[s.id];
+  if (p && p.setVolume) { try { p.setVolume(s.volume / 100); } catch(e) {} }
+}
+function applyMute(s) {
+  const p = players[s.id];
+  if (p && p.setMuted) { try { p.setMuted(s.muted); } catch(e) {} }
 }
 
 function setVol(id, val) {
   const s = streams.find(x => x.id === id);
-  if (!s || s.linked) return;
-  s.volume = val;
-  const el = document.getElementById('vol-val-' + id);
-  if (el) el.textContent = val;
+  if (!s) return;
+  if (s.linked) {
+    // move all linked streams together
+    streams.forEach(st => {
+      if (st.linked) {
+        st.volume = val;
+        applyVolume(st);
+        const v = document.getElementById('vol-val-' + st.id); if (v) v.textContent = val;
+        const sl = document.getElementById('vol-slider-' + st.id); if (sl && st.id !== id) sl.value = val;
+      }
+    });
+    const ms = document.getElementById('linkedSlider'); if (ms) ms.value = val;
+    document.getElementById('linkedVal').textContent = val;
+  } else {
+    s.volume = val;
+    applyVolume(s);
+    const v = document.getElementById('vol-val-' + id); if (v) v.textContent = val;
+  }
+  save();
+}
+
+function onLinkedChange(val) {
+  document.getElementById('linkedVal').textContent = val;
+  streams.forEach(s => {
+    if (!s.linked) return;
+    s.volume = val;
+    applyVolume(s);
+    const v = document.getElementById('vol-val-' + s.id); if (v) v.textContent = val;
+    const sl = document.getElementById('vol-slider-' + s.id); if (sl) sl.value = val;
+  });
   save();
 }
 
@@ -498,24 +318,31 @@ function setOffset(id, val) {
   if (el) el.textContent = (val > 0 ? '+' : '') + val + 'ms';
   save();
 }
-
 function resetOffset(id) {
   const s = streams.find(x => x.id === id);
   if (!s) return;
   s.offset = 0;
-  const el = document.getElementById('off-val-' + id);
-  if (el) el.textContent = '0ms';
-  const slider = document.getElementById('off-slider-' + id);
-  if (slider) slider.value = 0;
+  const el = document.getElementById('off-val-' + id); if (el) el.textContent = '0ms';
+  const sl = document.getElementById('off-slider-' + id); if (sl) sl.value = 0;
   save();
+}
+function reloadStream(id) {
+  const s = streams.find(x => x.id === id);
+  if (!s) return;
+  delete players[id];
+  mountPlayer(s);
+  toast('Reloaded ' + s.channel);
 }
 
 function toggleMute(id) {
   const s = streams.find(x => x.id === id);
   if (!s) return;
   s.muted = !s.muted;
-  save();
-  renderCard(id);
+  applyMute(s);
+  save(); updateBadge(id);
+  document.getElementById('card-' + id).classList.toggle('muted', s.muted);
+  const btn = document.getElementById('mute-btn-' + id);
+  if (btn) btn.innerHTML = s.muted ? '🔇 Unmute' : '🔊 Mute';
 }
 
 function toggleVideo(id) {
@@ -523,176 +350,153 @@ function toggleVideo(id) {
   if (!s) return;
   s.videoHidden = !s.videoHidden;
   save();
-  renderCard(id);
+  document.getElementById('card-' + id).classList.toggle('video-hidden', s.videoHidden);
+  updateBadge(id);
+  const btn = document.getElementById('video-btn-' + id);
+  if (btn) btn.innerHTML = s.videoHidden ? '🎥 Show video' : '⬜ Audio only';
 }
 
-function toggleLink(id, checked) {
+function toggleChain(id) {
   const s = streams.find(x => x.id === id);
   if (!s) return;
-  s.linked = checked;
-  if (checked) {
+  s.linked = !s.linked;
+  if (s.linked) {
     s.volume = +document.getElementById('linkedSlider').value;
+    applyVolume(s);
+    const v = document.getElementById('vol-val-' + id); if (v) v.textContent = s.volume;
+    const sl = document.getElementById('vol-slider-' + id); if (sl) sl.value = s.volume;
   }
   save();
-  renderCard(id);
+  const btn = document.getElementById('chain-' + id);
+  if (btn) { btn.innerHTML = s.linked ? '🔗' : '⛓️‍💥'; btn.classList.toggle('unlinked', !s.linked); btn.title = s.linked ? 'Linked to master volume — click to unlink' : 'Independent volume — click to link'; }
 }
 
-function onLinkedChange(val) {
-  document.getElementById('linkedVal').textContent = val;
+function toggleMasterLink() {
+  masterAllLinked = !masterAllLinked;
   streams.forEach(s => {
-    if (!s.linked) return;
-    s.volume = val;
-    const el = document.getElementById('vol-val-' + s.id);
-    if (el) el.textContent = val;
-    const slider = document.getElementById('vol-slider-' + s.id);
-    if (slider) slider.value = val;
+    s.linked = masterAllLinked;
+    const btn = document.getElementById('chain-' + s.id);
+    if (btn) { btn.innerHTML = s.linked ? '🔗' : '⛓️‍💥'; btn.classList.toggle('unlinked', !s.linked); }
+    const sl = document.getElementById('vol-slider-' + s.id);
+    if (masterAllLinked) { s.volume = +document.getElementById('linkedSlider').value; applyVolume(s);
+      const v = document.getElementById('vol-val-' + s.id); if (v) v.textContent = s.volume; if (sl) sl.value = s.volume; }
   });
+  const t = document.getElementById('masterLinkToggle');
+  t.classList.toggle('active', masterAllLinked);
+  document.getElementById('masterLinkIcon').textContent = masterAllLinked ? '🔗' : '⛓️‍💥';
+  document.getElementById('masterLinkText').textContent = masterAllLinked ? 'All linked' : 'Independent';
   save();
 }
 
 function muteAll() {
   const anyUnmuted = streams.some(s => !s.muted);
-  streams.forEach(s => s.muted = anyUnmuted);
-  save();
-  render();
+  streams.forEach(s => { s.muted = anyUnmuted; applyMute(s); });
+  save(); render();
 }
-
 function toggleAllVideo() {
   const anyVisible = streams.some(s => !s.videoHidden);
   streams.forEach(s => s.videoHidden = anyVisible);
-  save();
-  render();
+  save(); render();
 }
 
-function badge(s) {
-  if (s.muted) return '<span class="live-badge muted-badge">MUTED</span>';
-  if (s.videoHidden) return '<span class="live-badge audio-only">AUDIO ONLY</span>';
-  return '<span class="live-badge">LIVE</span>';
+/* ---------- rendering ---------- */
+function updateBadge(id) {
+  const s = streams.find(x => x.id === id);
+  const el = document.getElementById('badge-' + id);
+  if (!s || !el) return;
+  if (s.muted) { el.className = 'live-badge muted-badge'; el.textContent = 'MUTED'; }
+  else if (s.videoHidden) { el.className = 'live-badge audio-only'; el.textContent = 'AUDIO ONLY'; }
+  else { el.className = 'live-badge'; el.textContent = 'LIVE'; }
 }
 
-function playerHTML(s) {
-  if (IS_LOCAL) {
-    return `<div class="player-placeholder">
+function mountPlayer(s) {
+  const wrap = document.getElementById('player-' + s.id);
+  if (!wrap) return;
+  if (IS_LOCAL || typeof Twitch === 'undefined' || !Twitch.Player) {
+    wrap.innerHTML = `<div class="player-placeholder">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
-      <span>${s.channel}</span>
-      <span style="font-size:11px;">Host on GitHub Pages to activate</span>
-    </div>`;
+      <span>${s.channel}</span><span style="font-size:11px;">Host on a real domain to activate</span></div>`;
+    return;
   }
-  return `<iframe
-    src="https://player.twitch.tv/?channel=${s.channel}&parent=${PARENT}&muted=${s.muted}&volume=${s.volume/100}"
-    allowfullscreen>
-  </iframe>`;
+  wrap.innerHTML = '<div id="tw-' + s.id + '"></div>';
+  const player = new Twitch.Player('tw-' + s.id, {
+    channel: s.channel, parent: [PARENT], width: '100%', height: '100%',
+    muted: s.muted, autoplay: true
+  });
+  player.addEventListener(Twitch.Player.READY, () => {
+    try { player.setVolume(s.volume / 100); player.setMuted(s.muted); } catch(e) {}
+  });
+  players[s.id] = player;
 }
 
 function cardHTML(s) {
+  const chainIcon = s.linked ? '🔗' : '⛓️‍💥';
+  const chainTitle = s.linked ? 'Linked to master volume — click to unlink' : 'Independent volume — click to link';
   return `
     <div class="stream-card${s.muted ? ' muted' : ''}${s.videoHidden ? ' video-hidden' : ''}" id="card-${s.id}">
-      <div class="player-wrap" id="player-${s.id}">${playerHTML(s)}</div>
+      <div class="player-wrap" id="player-${s.id}"></div>
       <div class="card-body">
         <div class="card-header">
-          <input type="checkbox" class="link-checkbox" title="Link to master volume" ${s.linked ? 'checked' : ''}
-            onchange="toggleLink(${s.id}, this.checked)" />
+          <button class="chain-btn${s.linked ? '' : ' unlinked'}" id="chain-${s.id}" title="${chainTitle}" onclick="toggleChain(${s.id})">${chainIcon}</button>
           <span class="channel-label">${s.channel}</span>
-          ${badge(s)}
+          <span class="live-badge" id="badge-${s.id}">LIVE</span>
         </div>
-
         <div class="ctrl-row">
           <span class="ctrl-label">Volume</span>
-          <input type="range" id="vol-slider-${s.id}" min="0" max="100" step="1" value="${s.volume}"
-            ${s.linked ? 'disabled' : ''}
-            oninput="setVol(${s.id}, +this.value)" />
+          <input type="range" id="vol-slider-${s.id}" min="0" max="100" step="1" value="${s.volume}" oninput="setVol(${s.id}, +this.value)" />
           <span class="ctrl-val" id="vol-val-${s.id}">${s.volume}</span>
         </div>
-
         <div class="ctrl-row">
           <span class="ctrl-label">Offset</span>
-          <input type="range" id="off-slider-${s.id}" min="-5000" max="5000" step="50" value="${s.offset}"
-            oninput="setOffset(${s.id}, +this.value)" />
+          <input type="range" id="off-slider-${s.id}" min="-5000" max="5000" step="50" value="${s.offset}" oninput="setOffset(${s.id}, +this.value)" />
           <span class="ctrl-val" id="off-val-${s.id}">${(s.offset > 0 ? '+' : '') + s.offset}ms</span>
         </div>
-
         <div class="card-actions">
-          <button class="btn" onclick="toggleMute(${s.id})" title="Toggle mute">
-            ${s.muted ? '🔇 Unmute' : '🔊 Mute'}
-          </button>
-          <button class="btn" onclick="toggleVideo(${s.id})" title="Toggle video / audio only">
-            ${s.videoHidden ? '🎥 Show video' : '⬜ Audio only'}
-          </button>
-          <button class="btn" onclick="resetOffset(${s.id})" title="Reset offset">↺ Reset</button>
-          <button class="btn danger" onclick="removeStream(${s.id})" title="Remove stream">✕</button>
+          <button class="btn" id="mute-btn-${s.id}" onclick="toggleMute(${s.id})">${s.muted ? '🔇 Unmute' : '🔊 Mute'}</button>
+          <button class="btn" id="video-btn-${s.id}" onclick="toggleVideo(${s.id})">${s.videoHidden ? '🎥 Show video' : '⬜ Audio only'}</button>
+          <button class="btn" onclick="reloadStream(${s.id})" title="Reload (re-sync)">↻</button>
+          <button class="btn danger" onclick="removeStream(${s.id})">✕</button>
         </div>
       </div>
-    </div>
-  `;
-}
-
-function renderCard(id) {
-  const s = streams.find(x => x.id === id);
-  const el = document.getElementById('card-' + id);
-  if (!s || !el) { render(); return; }
-  el.outerHTML = cardHTML(s);
+    </div>`;
 }
 
 function render() {
   const grid = document.getElementById('streamGrid');
   const masterBar = document.getElementById('masterBar');
-  const notice = document.getElementById('embedNotice');
-
   if (streams.length === 0) {
-    grid.innerHTML = `
-      <div class="empty-state">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
-        <p>No streams added yet</p>
-        <small>Type a Twitch channel name above and hit Add</small>
-      </div>`;
+    grid.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 24 24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+      <p>No streams added yet</p><small>Type a Twitch channel name above and hit Add</small></div>`;
     masterBar.style.display = 'none';
-    notice.style.display = 'none';
+    renderLayouts();
     return;
   }
-
   masterBar.style.display = 'flex';
-  if (IS_LOCAL) notice.style.display = 'block';
-
   const wrap = document.createElement('div');
   wrap.className = 'grid';
-  streams.forEach(s => { wrap.innerHTML += cardHTML(s); });
+  wrap.innerHTML = streams.map(cardHTML).join('');
   grid.innerHTML = '';
   grid.appendChild(wrap);
+  streams.forEach(s => { updateBadge(s.id); mountPlayer(s); });
+  renderLayouts();
 }
 
-// Keyboard shortcuts
+/* ---------- keyboard ---------- */
 document.addEventListener('keydown', e => {
   const active = document.activeElement;
   const typing = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
-
-  if (e.key === '/' && !typing) {
-    e.preventDefault();
-    document.getElementById('channelInput').focus();
-    return;
-  }
-
+  if (e.key === '/' && !typing) { e.preventDefault(); document.getElementById('channelInput').focus(); return; }
   if (typing) return;
-
   if (e.key === 'm' || e.key === 'M') muteAll();
   if (e.key === 'v' || e.key === 'V') toggleAllVideo();
-  if (e.key === 'ArrowUp') {
-    e.preventDefault();
-    const sl = document.getElementById('linkedSlider');
-    if (sl) { sl.value = Math.min(100, +sl.value + 5); onLinkedChange(+sl.value); }
-  }
-  if (e.key === 'ArrowDown') {
-    e.preventDefault();
-    const sl = document.getElementById('linkedSlider');
-    if (sl) { sl.value = Math.max(0, +sl.value - 5); onLinkedChange(+sl.value); }
-  }
+  if (e.key === 'ArrowUp') { e.preventDefault(); const sl = document.getElementById('linkedSlider'); if (sl) { sl.value = Math.min(100, +sl.value + 5); onLinkedChange(+sl.value); } }
+  if (e.key === 'ArrowDown') { e.preventDefault(); const sl = document.getElementById('linkedSlider'); if (sl) { sl.value = Math.max(0, +sl.value - 5); onLinkedChange(+sl.value); } }
 });
+document.getElementById('channelInput').addEventListener('keydown', e => { if (e.key === 'Enter') addStream(); });
 
-document.getElementById('channelInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') addStream();
-});
-
-// Init
-load();
+/* ---------- init ---------- */
+if (!loadFromURL()) loadFromStorage();
 render();
 </script>
 </body>
