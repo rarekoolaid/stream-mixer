@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stream Mixer</title>
+<style>
+  :root {
+    --bg: #0e0e10;
+    --surface: #18181b;
+    --surface2: #1f1f23;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #efeff1;
+    --text2: #adadb8;
+    --text3: #6b6b7e;
+    --purple: #9147ff;
+    --purple-dim: #5c2fa0;
+    --green: #00b26b;
+    --red: #e53e3e;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--purple);
+    flex-shrink: 0;
+  }
+
+  .logo svg { width: 20px; height: 20px; fill: var(--purple); }
+
+  .add-form {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+    max-width: 420px;
+  }
+
+  .add-form input {
+    flex: 1;
+    height: 34px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    color: var(--text);
+    padding: 0 12px;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .add-form input:focus { border-color: var(--purple); }
+  .add-form input::placeholder { color: var(--text3); }
+
+  .btn {
+    height: 34px;
+    padding: 0 14px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border2);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    transition: background 0.12s, border-color 0.12s;
+    flex-shrink: 0;
+  }
+
+  .btn:hover { background: var(--border2); }
+  .btn.primary { background: var(--purple-dim); border-color: var(--purple); color: #fff; }
+  .btn.primary:hover { background: var(--purple); }
+  .btn.danger:hover { background: var(--red); border-color: var(--red); }
+  .btn.icon-only { width: 34px; padding: 0; justify-content: center; }
+
+  .topbar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .shortcuts-hint {
+    font-size: 12px;
+    color: var(--text3);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    transition: background 0.12s;
+  }
+
+  .shortcuts-hint:hover { background: var(--surface2); color: var(--text2); }
+
+  /* ── MASTER BAR ── */
+  .master-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .master-bar label { font-size: 12px; color: var(--text3); white-space: nowrap; }
+
+  .slider-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    max-width: 260px;
+  }
+
+  .slider-wrap input[type=range] { flex: 1; accent-color: var(--purple); cursor: pointer; }
+
+  .slider-val {
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 28px;
+    text-align: right;
+    color: var(--text2);
+  }
+
+  .master-actions { display: flex; gap: 8px; margin-left: auto; }
+
+  /* ── SHORTCUTS PANEL ── */
+  .shortcuts-panel {
+    display: none;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+  }
+
+  .shortcuts-panel.open { display: block; }
+
+  .sc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 6px 24px;
+  }
+
+  .sc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text2);
+    padding: 3px 0;
+  }
+
+  .sc-key {
+    font-family: monospace;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  /* ── GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 12px;
+    padding: 14px 16px;
+  }
+
+  .stream-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: opacity 0.2s;
+  }
+
+  .stream-card.muted { opacity: 0.6; }
+
+  .player-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #000;
+    overflow: hidden;
+  }
+
+  .player-wrap iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  .player-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--text3);
+    font-size: 13px;
+    background: #000;
+  }
+
+  .video-hidden .player-wrap { display: none; }
+
+  .card-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .link-checkbox {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--purple);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .channel-label {
+    font-weight: 600;
+    font-size: 14px;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .live-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--red);
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .live-badge.audio-only {
+    background: var(--purple-dim);
+    color: #dcc8ff;
+  }
+
+  .live-badge.muted-badge {
+    background: var(--surface2);
+    color: var(--text3);
+  }
+
+  /* Controls */
+  .ctrl-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ctrl-icon {
+    font-size: 13px;
+    color: var(--text3);
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .ctrl-label {
+    font-size: 11px;
+    color: var(--text3);
+    min-width: 48px;
+    flex-shrink: 0;
+  }
+
+  .ctrl-row input[type=range] {
+    flex: 1;
+    accent-color: var(--purple);
+    cursor: pointer;
+  }
+
+  .ctrl-row input[type=range]:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .ctrl-val {
+    font-size: 11px;
+    font-weight: 600;
+    min-width: 36px;
+    text-align: right;
+    color: var(--text2);
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 6px;
+    padding-top: 4px;
+  }
+
+  .card-actions .btn {
+    flex: 1;
+    justify-content: center;
+    height: 30px;
+    font-size: 12px;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 4rem 2rem;
+    color: var(--text3);
+    border: 1px dashed var(--border2);
+    border-radius: var(--radius-lg);
+    margin: 14px 16px;
+  }
+
+  .empty-state svg { width: 40px; height: 40px; fill: var(--text3); opacity: 0.4; }
+  .empty-state p { font-size: 15px; }
+  .empty-state small { font-size: 13px; color: var(--text3); }
+
+  /* ── NOTICE ── */
+  .notice {
+    margin: 0 16px 4px;
+    padding: 10px 14px;
+    background: rgba(145, 71, 255, 0.08);
+    border: 1px solid rgba(145, 71, 255, 0.2);
+    border-radius: var(--radius);
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  .notice a { color: var(--purple); }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+    Stream Mixer
+  </div>
+
+  <div class="add-form">
+    <input type="text" id="channelInput" placeholder="Channel name (e.g. xqc)" autocomplete="off" />
+    <button class="btn primary" onclick="addStream()">+ Add</button>
+  </div>
+
+  <div class="topbar-right">
+    <span class="shortcuts-hint" onclick="toggleShortcuts()">⌨ Shortcuts</span>
+  </div>
+</div>
+
+<!-- SHORTCUTS PANEL -->
+<div class="shortcuts-panel" id="shortcutsPanel">
+  <div class="sc-grid">
+    <div class="sc-row"><span>Add stream (focus input first)</span><kbd class="sc-key">Enter</kbd></div>
+    <div class="sc-row"><span>Focus channel input</span><kbd class="sc-key">/</kbd></div>
+    <div class="sc-row"><span>Mute / unmute all</span><kbd class="sc-key">M</kbd></div>
+    <div class="sc-row"><span>Linked volume up</span><kbd class="sc-key">↑</kbd></div>
+    <div class="sc-row"><span>Linked volume down</span><kbd class="sc-key">↓</kbd></div>
+    <div class="sc-row"><span>Toggle all video</span><kbd class="sc-key">V</kbd></div>
+  </div>
+</div>
+
+<!-- MASTER BAR -->
+<div class="master-bar" id="masterBar" style="display:none;">
+  <label>Linked volume</label>
+  <div class="slider-wrap">
+    <input type="range" min="0" max="100" step="1" value="80" id="linkedSlider" oninput="onLinkedChange(+this.value)" />
+    <span class="slider-val" id="linkedVal">80</span>
+  </div>
+  <div class="master-actions">
+    <button class="btn" onclick="muteAll()" title="Toggle mute all (M)">⊘ Mute all</button>
+    <button class="btn" onclick="toggleAllVideo()" title="Toggle all video (V)">⬜ Video off</button>
+  </div>
+</div>
+
+<!-- NOTICE -->
+<div class="notice" id="embedNotice" style="display:none;">
+  ⚠ Twitch requires a registered domain for embeds. Players will show a placeholder until hosted on a real URL.
+  Host for free on <a href="https://pages.github.com" target="_blank">GitHub Pages</a> to activate live streams.
+</div>
+
+<!-- STREAM GRID -->
+<div id="streamGrid"></div>
+
+<script>
+const streams = [];
+let nextId = 1;
+const PARENT = location.hostname || 'localhost';
+const IS_LOCAL = PARENT === 'localhost' || PARENT === '' || PARENT === '127.0.0.1';
+
+function toggleShortcuts() {
+  document.getElementById('shortcutsPanel').classList.toggle('open');
+}
+
+function save() {
+  try {
+    localStorage.setItem('mixer_streams', JSON.stringify(streams.map(s => ({
+      channel: s.channel,
+      volume: s.volume,
+      offset: s.offset,
+      muted: s.muted,
+      linked: s.linked,
+      videoHidden: s.videoHidden
+    }))));
+  } catch(e) {}
+}
+
+function load() {
+  try {
+    const data = JSON.parse(localStorage.getItem('mixer_streams') || '[]');
+    data.forEach(d => {
+      streams.push({ id: nextId++, ...d });
+    });
+  } catch(e) {}
+}
+
+function addStream(channelName) {
+  const input = document.getElementById('channelInput');
+  const name = (channelName || input.value).trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+  if (!name) return;
+  if (streams.find(s => s.channel === name)) { if (input) input.value = ''; return; }
+  streams.push({ id: nextId++, channel: name, volume: 80, offset: 0, muted: false, linked: true, videoHidden: false });
+  if (input) input.value = '';
+  save();
+  render();
+}
+
+function removeStream(id) {
+  const i = streams.findIndex(x => x.id === id);
+  if (i > -1) streams.splice(i, 1);
+  save();
+  render();
+}
+
+function setVol(id, val) {
+  const s = streams.find(x => x.id === id);
+  if (!s || s.linked) return;
+  s.volume = val;
+  const el = document.getElementById('vol-val-' + id);
+  if (el) el.textContent = val;
+  save();
+}
+
+function setOffset(id, val) {
+  const s = streams.find(x => x.id === id);
+  if (!s) return;
+  s.offset = val;
+  const el = document.getElementById('off-val-' + id);
+  if (el) el.textContent = (val > 0 ? '+' : '') + val + 'ms';
+  save();
+}
+
+function resetOffset(id) {
+  const s = streams.find(x => x.id === id);
+  if (!s) return;
+  s.offset = 0;
+  const el = document.getElementById('off-val-' + id);
+  if (el) el.textContent = '0ms';
+  const slider = document.getElementById('off-slider-' + id);
+  if (slider) slider.value = 0;
+  save();
+}
+
+function toggleMute(id) {
+  const s = streams.find(x => x.id === id);
+  if (!s) return;
+  s.muted = !s.muted;
+  save();
+  renderCard(id);
+}
+
+function toggleVideo(id) {
+  const s = streams.find(x => x.id === id);
+  if (!s) return;
+  s.videoHidden = !s.videoHidden;
+  save();
+  renderCard(id);
+}
+
+function toggleLink(id, checked) {
+  const s = streams.find(x => x.id === id);
+  if (!s) return;
+  s.linked = checked;
+  if (checked) {
+    s.volume = +document.getElementById('linkedSlider').value;
+  }
+  save();
+  renderCard(id);
+}
+
+function onLinkedChange(val) {
+  document.getElementById('linkedVal').textContent = val;
+  streams.forEach(s => {
+    if (!s.linked) return;
+    s.volume = val;
+    const el = document.getElementById('vol-val-' + s.id);
+    if (el) el.textContent = val;
+    const slider = document.getElementById('vol-slider-' + s.id);
+    if (slider) slider.value = val;
+  });
+  save();
+}
+
+function muteAll() {
+  const anyUnmuted = streams.some(s => !s.muted);
+  streams.forEach(s => s.muted = anyUnmuted);
+  save();
+  render();
+}
+
+function toggleAllVideo() {
+  const anyVisible = streams.some(s => !s.videoHidden);
+  streams.forEach(s => s.videoHidden = anyVisible);
+  save();
+  render();
+}
+
+function badge(s) {
+  if (s.muted) return '<span class="live-badge muted-badge">MUTED</span>';
+  if (s.videoHidden) return '<span class="live-badge audio-only">AUDIO ONLY</span>';
+  return '<span class="live-badge">LIVE</span>';
+}
+
+function playerHTML(s) {
+  if (IS_LOCAL) {
+    return `<div class="player-placeholder">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+      <span>${s.channel}</span>
+      <span style="font-size:11px;">Host on GitHub Pages to activate</span>
+    </div>`;
+  }
+  return `<iframe
+    src="https://player.twitch.tv/?channel=${s.channel}&parent=${PARENT}&muted=${s.muted}&volume=${s.volume/100}"
+    allowfullscreen>
+  </iframe>`;
+}
+
+function cardHTML(s) {
+  return `
+    <div class="stream-card${s.muted ? ' muted' : ''}${s.videoHidden ? ' video-hidden' : ''}" id="card-${s.id}">
+      <div class="player-wrap" id="player-${s.id}">${playerHTML(s)}</div>
+      <div class="card-body">
+        <div class="card-header">
+          <input type="checkbox" class="link-checkbox" title="Link to master volume" ${s.linked ? 'checked' : ''}
+            onchange="toggleLink(${s.id}, this.checked)" />
+          <span class="channel-label">${s.channel}</span>
+          ${badge(s)}
+        </div>
+
+        <div class="ctrl-row">
+          <span class="ctrl-label">Volume</span>
+          <input type="range" id="vol-slider-${s.id}" min="0" max="100" step="1" value="${s.volume}"
+            ${s.linked ? 'disabled' : ''}
+            oninput="setVol(${s.id}, +this.value)" />
+          <span class="ctrl-val" id="vol-val-${s.id}">${s.volume}</span>
+        </div>
+
+        <div class="ctrl-row">
+          <span class="ctrl-label">Offset</span>
+          <input type="range" id="off-slider-${s.id}" min="-5000" max="5000" step="50" value="${s.offset}"
+            oninput="setOffset(${s.id}, +this.value)" />
+          <span class="ctrl-val" id="off-val-${s.id}">${(s.offset > 0 ? '+' : '') + s.offset}ms</span>
+        </div>
+
+        <div class="card-actions">
+          <button class="btn" onclick="toggleMute(${s.id})" title="Toggle mute">
+            ${s.muted ? '🔇 Unmute' : '🔊 Mute'}
+          </button>
+          <button class="btn" onclick="toggleVideo(${s.id})" title="Toggle video / audio only">
+            ${s.videoHidden ? '🎥 Show video' : '⬜ Audio only'}
+          </button>
+          <button class="btn" onclick="resetOffset(${s.id})" title="Reset offset">↺ Reset</button>
+          <button class="btn danger" onclick="removeStream(${s.id})" title="Remove stream">✕</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderCard(id) {
+  const s = streams.find(x => x.id === id);
+  const el = document.getElementById('card-' + id);
+  if (!s || !el) { render(); return; }
+  el.outerHTML = cardHTML(s);
+}
+
+function render() {
+  const grid = document.getElementById('streamGrid');
+  const masterBar = document.getElementById('masterBar');
+  const notice = document.getElementById('embedNotice');
+
+  if (streams.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+        <p>No streams added yet</p>
+        <small>Type a Twitch channel name above and hit Add</small>
+      </div>`;
+    masterBar.style.display = 'none';
+    notice.style.display = 'none';
+    return;
+  }
+
+  masterBar.style.display = 'flex';
+  if (IS_LOCAL) notice.style.display = 'block';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'grid';
+  streams.forEach(s => { wrap.innerHTML += cardHTML(s); });
+  grid.innerHTML = '';
+  grid.appendChild(wrap);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  const active = document.activeElement;
+  const typing = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
+
+  if (e.key === '/' && !typing) {
+    e.preventDefault();
+    document.getElementById('channelInput').focus();
+    return;
+  }
+
+  if (typing) return;
+
+  if (e.key === 'm' || e.key === 'M') muteAll();
+  if (e.key === 'v' || e.key === 'V') toggleAllVideo();
+  if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    const sl = document.getElementById('linkedSlider');
+    if (sl) { sl.value = Math.min(100, +sl.value + 5); onLinkedChange(+sl.value); }
+  }
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    const sl = document.getElementById('linkedSlider');
+    if (sl) { sl.value = Math.max(0, +sl.value - 5); onLinkedChange(+sl.value); }
+  }
+});
+
+document.getElementById('channelInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addStream();
+});
+
+// Init
+load();
+render();
+</script>
+</body>
+</html>
